@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>歴史上の“飯”クイズ</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Yu Gothic","Hiragino Sans",sans-serif;
+  background:linear-gradient(135deg,#2b1608,#6b3516);
+  color:#fff;
+}
+.layout{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  gap:20px;
+  padding:20px;
+}
+.game{
+  width:100%;
+  max-width:760px;
+  background:rgba(0,0,0,.55);
+  border:2px solid #d7a84f;
+  border-radius:18px;
+  padding:26px;
+}
+h1{
+  text-align:center;
+  color:#ffd37a;
+}
+.sub{
+  text-align:center;
+  color:#ddd;
+  margin-bottom:24px;
+}
+.status{
+  display:flex;
+  justify-content:space-between;
+  color:#ffd37a;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+.question{
+  background:rgba(255,255,255,.08);
+  padding:22px;
+  border-radius:14px;
+  line-height:1.8;
+  font-size:1.25rem;
+  margin-bottom:20px;
+}
+.choices{
+  display:grid;
+  gap:12px;
+}
+button{
+  border:none;
+  border-radius:12px;
+  padding:15px;
+  font-size:1rem;
+  font-weight:bold;
+  cursor:pointer;
+  background:#f5d08a;
+  color:#2a1707;
+}
+button:hover{
+  background:#ffe2ab;
+}
+button.correct{
+  background:#35b85b;
+  color:#fff;
+}
+button.wrong{
+  background:#d94a4a;
+  color:#fff;
+}
+.result{
+  margin-top:18px;
+  min-height:50px;
+  line-height:1.7;
+  font-weight:bold;
+}
+.explain{
+  color:#ddd;
+  margin-top:8px;
+  font-weight:normal;
+}
+.restart{
+  display:none;
+  margin-top:20px;
+  width:100%;
+  background:#c99a45;
+  color:#fff;
+}
+.ad-area{
+  width:320px;
+  min-width:320px;
+  position:sticky;
+  top:20px;
+}
+.ad-box{
+  background:rgba(255,255,255,.08);
+  border:2px solid #d7a84f;
+  border-radius:14px;
+  padding:12px;
+}
+.ad-title{
+  text-align:center;
+  color:#ffd37a;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+@media(max-width:1000px){
+  .layout{
+    flex-direction:column;
+    align-items:center;
+  }
+  .ad-area{
+    width:100%;
+    min-width:auto;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <div class="game">
+    <h1>歴史上の“飯”クイズ</h1>
+    <div class="sub">武将・兵士・王族は何を食べていた？</div>
+
+    <div class="status">
+      <div id="count">1 / 50</div>
+      <div id="score">正解 0</div>
+    </div>
+
+    <div id="question" class="question"></div>
+    <div id="choices" class="choices"></div>
+    <div id="result" class="result"></div>
+
+    <button id="restart" class="restart" onclick="restartGame()">もう一度遊ぶ</button>
+  </div>
+
+  <div class="ad-area">
+    <div class="ad-box">
+      <div class="ad-title">スポンサー</div>
+
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8398161859137802"
+       crossorigin="anonymous"></script>
+      <!-- UIゲーム -->
+      <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-8398161859137802"
+       data-ad-slot="6325875393"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+      <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const baseQuizData = [
+{q:"戦国時代の兵士が戦場でよく食べた携帯食は？",choices:["兵糧丸","ショートケーキ","ラーメン","カレーライス"],answer:"兵糧丸",explain:"兵糧丸は米粉や味噌などを丸めた携帯食として知られます。"},
+{q:"戦国時代、保存食として重宝された味噌の使い道は？",choices:["栄養補給","香水","貨幣","鎧の修理"],answer:"栄養補給",explain:"味噌は保存がきき、塩分と栄養を補える重要な食料でした。"},
+{q:"武田信玄の軍用食として有名なものは？",choices:["ほうとう","寿司","天ぷら","チョコレート"],answer:"ほうとう",explain:"山梨の郷土料理ほうとうは、武田信玄と結びつけて語られることがあります。"},
+{q:"徳川家康が健康のために好んだとされる食べ物は？",choices:["麦飯","ドーナツ","ハンバーガー","アイスクリーム"],answer:"麦飯",explain:"家康は質素な食生活を心がけた人物として知られます。"},
+{q:"豊臣秀吉が茶会などで好んだ豪華な食文化と関係が深いものは？",choices:["茶の湯","ファストフード","缶詰","冷凍食品"],answer:"茶の湯",explain:"秀吉は茶の湯を政治や権威づけにも活用しました。"},
+{q:"織田信長が宣教師から受け取ったとされる南蛮菓子は？",choices:["金平糖","ポテトチップス","プリン","どら焼き"],answer:"金平糖",explain:"金平糖は南蛮菓子として日本に伝わった菓子です。"},
+{q:"戦国時代の兵糧として重要だった主食は？",choices:["米","パスタ","パンケーキ","ピザ"],answer:"米",explain:"米は年貢にも兵糧にもなる重要な食料でした。"},
+{q:"忍者の携帯食として語られる小さな丸薬状の食べ物は？",choices:["兵糧丸","おはぎ","羊羹","たこ焼き"],answer:"兵糧丸",explain:"少量で栄養補給できる携帯食として語られます。"},
+{q:"江戸時代、庶民にも広まった外食文化の代表は？",choices:["そば","フライドチキン","ステーキ専門店","タピオカ"],answer:"そば",explain:"江戸では屋台や店でそばを食べる文化が広まりました。"},
+{q:"江戸時代の寿司は現代と比べてどうだった？",choices:["大きめだった","完全に凍っていた","甘い菓子だった","飲み物だった"],answer:"大きめだった",explain:"江戸前寿司は現在より大きめだったとされます。"},
+
+{q:"古代ローマの兵士がよく食べた主食の一つは？",choices:["パン","白米のおにぎり","ラーメン","味噌汁"],answer:"パン",explain:"ローマ兵は穀物やパン、豆類などを食べていました。"},
+{q:"古代ローマで魚醤として使われた調味料は？",choices:["ガルム","醤油","マヨネーズ","ケチャップ"],answer:"ガルム",explain:"ガルムは魚を発酵させた調味料です。"},
+{q:"中世ヨーロッパの騎士や兵士がよく食べた保存食は？",choices:["干し肉","アイス","生クリーム","刺身"],answer:"干し肉",explain:"干し肉は保存性が高く、遠征時にも使われました。"},
+{q:"マリー・アントワネットの時代、フランス宮廷の食事で重視されたものは？",choices:["豪華さ","スピード","完全な無味","紙皿"],answer:"豪華さ",explain:"フランス宮廷では豪華な食文化が発達しました。"},
+{q:"ナポレオン軍の遠征で重要視された保存技術は？",choices:["瓶詰め","冷凍宅配","電子レンジ","真空炊飯器"],answer:"瓶詰め",explain:"軍の食料保存のため、瓶詰めなどの保存技術が発展しました。"},
+{q:"古代エジプトで庶民も食べていた主食は？",choices:["パン","寿司","うどん","カレー"],answer:"パン",explain:"古代エジプトではパンとビールが重要な食事でした。"},
+{q:"古代エジプトで日常的に飲まれていたものは？",choices:["ビール","コーラ","抹茶ラテ","エナジードリンク"],answer:"ビール",explain:"古代エジプトではビールが栄養源としても重要でした。"},
+{q:"中国の三国志時代、兵糧として重要だったものは？",choices:["穀物","チョコ","チーズバーガー","ポップコーン"],answer:"穀物",explain:"兵を動かすには米や麦などの穀物確保が重要でした。"},
+{q:"諸葛亮に由来する伝説がある食べ物は？",choices:["饅頭","ナポリタン","プリン","カステラ"],answer:"饅頭",explain:"饅頭には諸葛亮にまつわる伝説があります。"},
+{q:"モンゴル帝国の遊牧民が重視した食べ物は？",choices:["乳製品","寿司","豆腐ハンバーグ","うな重"],answer:"乳製品",explain:"遊牧民は馬乳酒や乳製品、肉を重要な食料としました。"},
+
+{q:"源平時代の武士が戦場で携帯した食料として近いものは？",choices:["干飯","チョコパフェ","ハンバーガー","ピザ"],answer:"干飯",explain:"干飯は米を乾燥させた保存食です。"},
+{q:"鎌倉武士の食事で中心になったものは？",choices:["米と魚","パスタとワイン","パンとチーズだけ","ケーキ"],answer:"米と魚",explain:"武士の食事は米、魚、野菜などが中心でした。"},
+{q:"戦国時代の陣中食として使われた乾燥米は？",choices:["干飯","焼きそば","ポテト","パン粉"],answer:"干飯",explain:"干飯は水や湯で戻して食べられました。"},
+{q:"上杉謙信の兵糧に関係が深いとされる保存食は？",choices:["笹団子","マカロン","クレープ","ピザ"],answer:"笹団子",explain:"笹団子は保存食としての性格もあり、越後の食文化と結びつきがあります。"},
+{q:"伊達政宗が料理好きとして知られる理由に近いものは？",choices:["自ら献立に関心を持った","料理を禁止した","米を食べなかった","甘味だけ食べた"],answer:"自ら献立に関心を持った",explain:"伊達政宗は食や料理への関心が高かった人物として語られます。"},
+{q:"江戸時代の大名行列で必要だったものは？",choices:["大量の食料と宿の準備","スマホ充電器","飛行機チケット","自動販売機"],answer:"大量の食料と宿の準備",explain:"多人数の移動には食料や宿泊の手配が欠かせませんでした。"},
+{q:"江戸の屋台文化で人気だったものは？",choices:["天ぷら","ハンバーガー","フライドポテト","タコス"],answer:"天ぷら",explain:"江戸では天ぷら、そば、寿司などの屋台文化が広まりました。"},
+{q:"江戸時代、白米中心の食生活で起きやすかった病気は？",choices:["脚気","花粉症","虫歯だけ","熱中症だけ"],answer:"脚気",explain:"ビタミンB1不足により脚気が問題になりました。"},
+{q:"徳川吉宗が奨励した作物として有名なものは？",choices:["さつまいも","バナナ","アボカド","マンゴー"],answer:"さつまいも",explain:"飢饉対策としてさつまいも栽培が重視されました。"},
+{q:"飢饉の時代に救荒作物として役立ったものは？",choices:["さつまいも","チョコレート","牛ステーキ","メロン"],answer:"さつまいも",explain:"やせた土地でも育ちやすく、飢饉対策に役立ちました。"},
+
+{q:"ベルサイユ宮殿の王族の食事に近いイメージは？",choices:["豪華なコース料理","一汁一菜だけ","立ち食いそば","缶詰だけ"],answer:"豪華なコース料理",explain:"フランス王侯貴族の食文化は豪華さで知られます。"},
+{q:"ルイ14世の宮廷文化と結びつきが深いものは？",choices:["フランス料理","インスタント麺","回転寿司","コンビニ弁当"],answer:"フランス料理",explain:"宮廷文化の中でフランス料理は洗練されていきました。"},
+{q:"中世ヨーロッパで香辛料が高価だった理由は？",choices:["遠方から運ばれたから","誰でも庭で作れたから","水より安かったから","食べると違法だったから"],answer:"遠方から運ばれたから",explain:"香辛料は交易で運ばれ、高価な品でした。"},
+{q:"大航海時代にヨーロッパ人が求めた食品関係の品は？",choices:["香辛料","カップ麺","冷凍食品","炭酸飲料"],answer:"香辛料",explain:"香辛料は大航海時代の重要な交易品でした。"},
+{q:"インカ帝国で重要だった作物は？",choices:["じゃがいも","米","小麦だけ","大豆だけ"],answer:"じゃがいも",explain:"アンデスではじゃがいもが重要な作物でした。"},
+{q:"アステカ文明で飲まれていたものに関係が深いのは？",choices:["カカオ","緑茶","コーラ","日本酒"],answer:"カカオ",explain:"カカオは飲料や儀式、交易品として重要でした。"},
+{q:"マヤ文明でも重要だった作物は？",choices:["トウモロコシ","そば","大根","小麦粉だけ"],answer:"トウモロコシ",explain:"中米文明ではトウモロコシが主食でした。"},
+{q:"古代ギリシャの食卓でよく使われたものは？",choices:["オリーブ油","醤油","味噌","ソース焼きそば"],answer:"オリーブ油",explain:"地中海世界ではオリーブ油が重要でした。"},
+{q:"古代ギリシャ・ローマでよく飲まれた酒は？",choices:["ワイン","焼酎","梅酒","ビール風ジュース"],answer:"ワイン",explain:"地中海世界ではワインが広く飲まれました。"},
+{q:"十字軍遠征のような長距離移動で重要だった食料の条件は？",choices:["保存できること","見た目が派手なこと","冷たいこと","必ず甘いこと"],answer:"保存できること",explain:"遠征では保存性の高い食料が重要でした。"},
+
+{q:"日本の茶の湯文化で重要な飲み物は？",choices:["抹茶","コーラ","コーヒー牛乳","ラムネ"],answer:"抹茶",explain:"茶の湯では抹茶が中心です。"},
+{q:"千利休と関係が深い食文化は？",choices:["茶の湯","フランス料理","中華料理","ファストフード"],answer:"茶の湯",explain:"千利休は侘び茶を大成した人物です。"},
+{q:"戦国時代、茶会は食事だけでなく何の場でもあった？",choices:["政治交流","運動会","映画鑑賞","釣り大会"],answer:"政治交流",explain:"茶会は武将同士の交流や政治的な場にもなりました。"},
+{q:"豊臣秀吉が開いた大規模な茶会は？",choices:["北野大茶湯","関ヶ原茶会","江戸大宴会","大阪菓子祭"],answer:"北野大茶湯",explain:"北野大茶湯は秀吉による大規模な茶会です。"},
+{q:"戦国武将が贈答品として重視したものは？",choices:["茶器","テレビ","ゲーム機","自転車"],answer:"茶器",explain:"名物茶器は権威や財産として重視されました。"},
+{q:"松永久秀の逸話で有名な茶器は？",choices:["平蜘蛛","曜変天目","初花","九十九髪茄子"],answer:"平蜘蛛",explain:"平蜘蛛の茶釜とともに爆死したという逸話があります。"},
+{q:"戦国時代の食事で、塩が重要だった理由は？",choices:["保存と体調維持に必要だった","甘くするため","色を青くするため","米を増やすため"],answer:"保存と体調維持に必要だった",explain:"塩は保存、味付け、塩分補給に欠かせませんでした。"},
+{q:"戦国時代、魚を保存する方法として近いものは？",choices:["干物","冷凍庫保存","缶ジュース化","チョコがけ"],answer:"干物",explain:"干物は保存性を高める方法でした。"},
+{q:"兵士が長期遠征で困る最大の問題の一つは？",choices:["兵糧不足","服の流行","音楽不足","祭り不足"],answer:"兵糧不足",explain:"兵糧が尽きると軍は戦えませんでした。"},
+{q:"城攻めで食料を断つ作戦は何を狙ったもの？",choices:["兵糧攻め","花見","宴会","馬比べ"],answer:"兵糧攻め",explain:"食料を断って敵を降伏に追い込む作戦です。"}
+];
+
+const quizData = [];
+
+for(let i = 0; i < 4; i++){
+  baseQuizData.forEach((item, index) => {
+    quizData.push({
+      q:item.q,
+      choices:[...item.choices],
+      answer:item.answer,
+      explain:item.explain
+    });
+  });
+}
+
+let questions = [];
+let current = 0;
+let score = 0;
+let lock = false;
+
+function shuffle(arr){
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function startGame(){
+  questions = shuffle([...quizData]).slice(0,50);
+  current = 0;
+  score = 0;
+  lock = false;
+  document.getElementById("restart").style.display = "none";
+  showQuestion();
+}
+
+function showQuestion(){
+  lock = false;
+  const q = questions[current];
+
+  document.getElementById("count").textContent = `${current + 1} / 50`;
+  document.getElementById("score").textContent = `正解 ${score}`;
+  document.getElementById("question").textContent = q.q;
+  document.getElementById("result").innerHTML = "";
+
+  const choicesEl = document.getElementById("choices");
+  choicesEl.innerHTML = "";
+
+  shuffle([...q.choices]).forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice;
+    btn.onclick = () => checkAnswer(btn, choice);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function checkAnswer(button, choice){
+  if(lock) return;
+  lock = true;
+
+  const q = questions[current];
+  const buttons = document.querySelectorAll("#choices button");
+
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if(btn.textContent === q.answer){
+      btn.classList.add("correct");
+    }
+  });
+
+  if(choice === q.answer){
+    score++;
+    button.classList.add("correct");
+    document.getElementById("result").innerHTML =
+      `正解！<div class="explain">${q.explain}</div>`;
+  }else{
+    button.classList.add("wrong");
+    document.getElementById("result").innerHTML =
+      `不正解… 正解は「${q.answer}」<div class="explain">${q.explain}</div>`;
+  }
+
+  document.getElementById("score").textContent = `正解 ${score}`;
+
+  setTimeout(() => {
+    current++;
+    if(current < questions.length){
+      showQuestion();
+    }else{
+      finishGame();
+    }
+  }, 1700);
+}
+
+function finishGame(){
+  document.getElementById("question").textContent =
+    `50問終了！ ${score}問正解！`;
+
+  document.getElementById("choices").innerHTML = "";
+
+  let message = "";
+  if(score >= 45){
+    message = "歴史飯マスター！武将の献立まで見えている！";
+  }else if(score >= 30){
+    message = "かなり詳しい！歴史の食文化に強い！";
+  }else{
+    message = "もう一度挑戦して、歴史飯を覚えよう！";
+  }
+
+  document.getElementById("result").innerHTML = message;
+  document.getElementById("restart").style.display = "block";
+}
+
+function restartGame(){
+  startGame();
+}
+
+startGame();
+</script>
+
+</body>
+</html>
